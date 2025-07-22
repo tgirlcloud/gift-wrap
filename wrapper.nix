@@ -108,6 +108,11 @@ lib.extendMkDerivation {
               path="''${resultingPaths[$i]}"
               dest="$out/$path"
 
+              if [[ -d "$dest" ]]; then
+                echo "warning: destination '$dest' already exists, skipping"
+                continue
+              fi
+
               mkdir -p "$dest"
 
               tolink=("$source/"!(parser))
