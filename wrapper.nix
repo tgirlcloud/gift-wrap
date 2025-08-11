@@ -101,7 +101,13 @@ lib.extendMkDerivation {
             vim.g.loaded_python3_provider = 0
             vim.g.loaded_ruby_provider = 0
 
-            vim.cmd.packadd({ "init-plugin" })
+            do
+              vim.cmd.packadd({ "init-plugin", bang = true })
+              local ok, result = pcall(require, '${pname}')
+              if not ok then
+                return
+              end
+            end
             EOF
 
             shopt -s extglob
