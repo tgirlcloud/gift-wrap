@@ -40,6 +40,12 @@ lib.extendMkDerivation {
       # path, see there explanation below
       extraPackages ? [ ],
 
+      # providers, these are the providers that will be enabled
+      providers ? { },
+
+      # extra init.lua, this is useful for setting up the environment
+      extraInitLua ? "",
+
       # plugins
       startPlugins ? [ ],
       optPlugins ? [ ],
@@ -65,6 +71,20 @@ lib.extendMkDerivation {
       depsOfOptionalPlugins = subtractLists optPlugins (findDependenciesRecursively optPlugins);
       startWithDeps = findDependenciesRecursively startPlugins;
       startPlugins' = unique (startWithDeps ++ depsOfOptionalPlugins);
+
+      # i couldn't chose a nice api between attrs and lists, so i just did both lol
+      attrsifiedProviders =
+        if lib.isAttrs providers then providers else (lib.genAttrs providers (_: true));
+
+      # merge providers attrs, with priority to the user providerd options
+      pluginProviders = {
+        node = false;
+        perl = false;
+        python = false;
+        python3 = false;
+        ruby = false;
+      }
+      // attrsifiedProviders;
 
       mkResultingPath =
         subdir: p:
@@ -95,11 +115,12 @@ lib.extendMkDerivation {
             vim.opt.runtimepath:append('$out')
 
             vim.loader.enable()
-            vim.g.loaded_node_provider = 0
-            vim.g.loaded_perl_provider = 0
-            vim.g.loaded_python_provider = 0
-            vim.g.loaded_python3_provider = 0
-            vim.g.loaded_ruby_provider = 0
+
+            ${lib.concatMapAttrsStringSep "\n" (provider: enabled: ''
+              vim.g.loaded_${provider}_provider = ${if enabled then "1" else "0"}
+            '') pluginProviders}
+
+            ${extraInitLua}
 
             do
               vim.cmd.packadd({ "init-plugin", bang = true })
