@@ -71,6 +71,25 @@ based off of the nixpkgs wrapper but with some personalized tweaks.
             inotify-tools
             lazygit
           ];
+
+          # below is a list of plugin providers, these should then be
+          # configured in your plugin or setup properly by adding to your path
+          # or the extraInitLua
+          #
+          # this can also be a list of strings
+          providers = {
+            node = false;
+            python = false;
+            python3 = true;
+            ruby = false;
+            perl = false;
+          };
+
+          # following the providers above, you can set the exact package for
+          # your providers, in this case python3
+          extraInitLua = ''
+            vim.g.python3_host_prog = '${lib.getExe pkgs.python3}'
+          '';
         };
       });
     };
