@@ -111,8 +111,8 @@ lib.extendMkDerivation {
             package.cpath = "${luaLib.genLuaCPathAbsStr luaEnv};$LUA_CPATH" .. package.cpath
             vim.env.PATH = vim.env.PATH .. ":${makeBinPath extraPackages}"
             vim.g.snippets_path = "$out/pack/${pname}/start/init-plugin/snippets"
-            vim.opt.packpath:append('$out')
-            vim.opt.runtimepath:append('$out')
+            vim.opt.packpath:prepend('$out')
+            vim.opt.runtimepath:prepend('$out')
 
             vim.loader.enable()
 
