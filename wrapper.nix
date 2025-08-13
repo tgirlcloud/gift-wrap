@@ -40,6 +40,9 @@ lib.extendMkDerivation {
       # path, see there explanation below
       extraPackages ? [ ],
 
+      # core-plugins, these are the core neovim-provided plugins (which are mostly unnecessary) that will be enabled
+      corePlugins ? { },
+
       # providers, these are the providers that will be enabled
       providers ? { },
 
@@ -71,6 +74,23 @@ lib.extendMkDerivation {
       depsOfOptionalPlugins = subtractLists optPlugins (findDependenciesRecursively optPlugins);
       startWithDeps = findDependenciesRecursively startPlugins;
       startPlugins' = unique (startWithDeps ++ depsOfOptionalPlugins);
+
+      attrsifiedCorePlugins =
+        if lib.isAttrs corePlugins then corePlugins else (lib.genAttrs corePlugins (_: true));
+
+      # merge providers attrs, with priority to the user providerd options
+      pluginCorePlugins = {
+        zipPlugin = false;
+        zip = false;
+        tarPlugin = false;
+        tar = false;
+        gzip = false;
+        tutor_mode_plugin = false;
+        matchit = false;
+        netrw = false;
+        netrwPlugin = false;
+      }
+      // attrsifiedCorePlugins;
 
       # i couldn't chose a nice api between attrs and lists, so i just did both lol
       attrsifiedProviders =
@@ -115,6 +135,11 @@ lib.extendMkDerivation {
             vim.opt.runtimepath:prepend('$out')
 
             vim.loader.enable()
+
+            -- we pass "1" here to disable a plugin since it will force neovim to skip loading it
+            ${lib.concatMapAttrsStringSep "\n" (plugin: enabled: ''
+              vim.g.loaded_${plugin} = ${if enabled then "0" else "1"}
+            '') pluginCorePlugins}
 
             ${lib.concatMapAttrsStringSep "\n" (provider: enabled: ''
               vim.g.loaded_${provider}_provider = ${if enabled then "1" else "0"}
