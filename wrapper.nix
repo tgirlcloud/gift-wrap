@@ -164,9 +164,9 @@ lib.extendMkDerivation {
               -c "helptags ALL" \
               +"quit!"
 
-            find "$out/pack/${pname}" -type d -empty -print -delete
-
             ln -sfT ${userConfig} $out/pack/${pname}/start/init-plugin
+
+            find "$out/pack/${pname}" -type d -empty -print -delete
 
             mkdir "$out/nix-support"
             for i in $(find -L "$out" -name 'propagated-build-inputs'); do
