@@ -24,6 +24,10 @@ in
 lib.extendMkDerivation {
   constructDrv = stdenvNoCC.mkDerivation;
 
+  excludeDrvArgNames = [
+    "extraLuaPackages"
+  ];
+
   extendDrvArgs =
     _:
     {
