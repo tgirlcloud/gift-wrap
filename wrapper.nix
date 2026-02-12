@@ -135,7 +135,7 @@ lib.extendMkDerivation {
             end
             EOF
 
-            shopt -s extglob
+            shopt -s extglob dotglob
             for (( i = 0; i < "''${#plugins[@]}"; i++ )); do
               source="''${plugins[$i]}"
               path="''${resultingPaths[$i]}"
@@ -158,7 +158,7 @@ lib.extendMkDerivation {
                 ln -nsf "$source/parser/"* -t "$out/parser"
               fi
             done
-            shopt -u extglob
+            shopt -u extglob dotglob
 
             ${getExe basePackage} \
               -n -u NONE -i NONE \
