@@ -57,6 +57,13 @@ lib.extendMkDerivation {
       # our config
       userConfig,
 
+      # PERF: clean runtime path so it only contains explicit runtime directories
+      # - removes directories from homedir as well as nix data directories
+      # - this means some programs that ship extra nvim data files need to be
+      #   explicitly added to the rtp with a package override
+      cleanRuntimePath ? true,
+      additionalRuntimePaths ? [ ],
+
       # other customisation
       aliases ? [ ],
       keepDesktopFiles ? false,
@@ -115,9 +122,35 @@ lib.extendMkDerivation {
             package.cpath = "${luaLib.genLuaCPathAbsStr luaEnv};$LUA_CPATH" .. package.cpath
             vim.env.PATH = vim.env.PATH .. ":${makeBinPath extraPackages}"
             vim.g.snippets_path = "$out/pack/${pname}/start/init-plugin/snippets"
-            vim.opt.packpath:prepend('$out')
-            vim.opt.runtimepath:prepend('$out')
-
+          ''
+          + (
+            if cleanRuntimePath then
+              (
+                let
+                  # if the runtime path is cleaned, it will be faster to leave the nvim
+                  # base paths at the start since most startup dependencies will be
+                  # found there.
+                  # $out will be put *before* the additionalRuntimePaths to replicate the behavior of `:prepend('$out')`.
+                  runtimePaths = [
+                    "${basePackage}/lib/nvim"
+                    "${basePackage}/share/nvim/runtime"
+                    "$out"
+                  ]
+                  ++ additionalRuntimePaths;
+                  rtp = builtins.concatStringsSep "," runtimePaths;
+                in
+                ''
+                  vim.o.runtimepath = "${rtp}"
+                  vim.o.packpath = "${rtp}"
+                ''
+              )
+            else
+              ''
+                vim.opt.runtimepath:prepend('$out')
+                vim.opt.packpath:prepend('$out')
+              ''
+          )
+          + ''
             vim.loader.enable()
 
             ${lib.concatMapAttrsStringSep "\n" (provider: enabled: ''
