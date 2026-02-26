@@ -61,7 +61,7 @@ lib.extendMkDerivation {
       # - removes directories from homedir as well as nix data directories
       # - this means some programs that ship extra nvim data files need to be
       #   explicitly added to the rtp with a package override
-      cleanRuntimePath ? true,
+      cleanRuntimePath ? false,
       additionalRuntimePaths ? [ ],
 
       # other customisation
