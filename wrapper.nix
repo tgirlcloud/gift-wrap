@@ -122,6 +122,8 @@ lib.extendMkDerivation {
             package.cpath = "${luaLib.genLuaCPathAbsStr luaEnv};$LUA_CPATH" .. package.cpath
             vim.env.PATH = vim.env.PATH .. ":${makeBinPath extraPackages}"
             vim.g.snippets_path = "$out/pack/${pname}/start/init-plugin/snippets"
+
+            if vim.env.NVIM_APPNAME == "${pname}" then
           ''
           + (
             if cleanRuntimePath then
@@ -140,10 +142,8 @@ lib.extendMkDerivation {
                   rtp = builtins.concatStringsSep "," runtimePaths;
                 in
                 ''
-                  if vim.env.NVIM_APPNAME == "${pname}" then
-                    vim.o.runtimepath = "${rtp}"
-                    vim.o.packpath = "${rtp}"
-                  end
+                  vim.o.runtimepath = "${rtp}"
+                  vim.o.packpath = "${rtp}"
                 ''
               )
             else
@@ -153,6 +153,8 @@ lib.extendMkDerivation {
               ''
           )
           + ''
+            end
+
             vim.loader.enable()
 
             ${lib.concatMapAttrsStringSep "\n" (provider: enabled: ''
