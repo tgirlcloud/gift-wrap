@@ -238,7 +238,7 @@ lib.extendMkDerivation {
       wrapperArgs = [
         "--set-default"
         "VIMINIT"
-        "source ${config}/init.lua"
+        "if getenv('NVIM_APPNAME') == '${pname}' | source ${config}/init.lua | endif"
 
         "--set-default"
         "NVIM_APPNAME"
