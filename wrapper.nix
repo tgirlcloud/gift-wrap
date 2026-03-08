@@ -140,8 +140,10 @@ lib.extendMkDerivation {
                   rtp = builtins.concatStringsSep "," runtimePaths;
                 in
                 ''
-                  vim.o.runtimepath = "${rtp}"
-                  vim.o.packpath = "${rtp}"
+                  if vim.env.NVIM_APPNAME == "${pname}" then
+                    vim.o.runtimepath = "${rtp}"
+                    vim.o.packpath = "${rtp}"
+                  end
                 ''
               )
             else
