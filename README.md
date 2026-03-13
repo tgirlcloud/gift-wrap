@@ -2,7 +2,7 @@
 
 Gift wrap is a simple neovim wrapper for nix that allows you to maintain your
 neovim configuration with lua and with nix for package management. As gift wrap
-is ment to be a very minimal neovim wrapper, it abstracts very little, and is
+is meant to be a very minimal neovim wrapper, it abstracts very little, and is
 based off of the nixpkgs wrapper but with some personalized tweaks.
 
 ### Usage
